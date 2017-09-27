@@ -3,7 +3,7 @@
 `TJStoreReviewController` is a simple wrapper around `SKStoreReviewController` that provides the following.
 
 - It's safe to call into on versions of iOS prior to 10.3.
-- It had simple throttling based on how long the app has been installed.
+- It has simple throttling based on how long the app has been installed.
 - It has a helpful method for presenting store review UI in the App Store (for use when users manually tap a "Rate this app" button, for example), which defers the automatic prompt from showing.
 
 ## Usage
