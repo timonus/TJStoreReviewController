@@ -10,8 +10,8 @@
 
 static NSString *const kTJStoreReviewControllerNextReviewDateKey = @"kTJStoreReviewControllerNextReviewDateKey";
 
-static NSUInteger const kTJStoreReviewControllerInitialDaysToRate = 7;
-static NSUInteger const kTJStoreReviewControllerDaysToRate = 30;
+static const NSUInteger kTJStoreReviewControllerInitialDaysToRate = 7;
+static const NSUInteger kTJStoreReviewControllerDaysToRate = 30;
 
 @implementation TJStoreReviewController
 
