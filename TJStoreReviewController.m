@@ -11,7 +11,7 @@
 static NSString *const kTJStoreReviewControllerNextReviewDateKey = @"kTJStoreReviewControllerNextReviewDateKey";
 
 static const NSUInteger kTJStoreReviewControllerInitialDaysToRate = 7;
-static const NSUInteger kTJStoreReviewControllerDaysToRate = 30;
+static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 
 @implementation TJStoreReviewController
 
@@ -31,7 +31,7 @@ static const NSUInteger kTJStoreReviewControllerDaysToRate = 30;
         [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerInitialDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
     } else {
         if ([date earlierDate:[NSDate date]] == date) {
-            [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
+            [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerSubsequentDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
             if ([SKStoreReviewController class]) {
                 [SKStoreReviewController requestReview];
                 didTryShow = YES;
@@ -43,7 +43,7 @@ static const NSUInteger kTJStoreReviewControllerDaysToRate = 30;
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
 {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerSubsequentDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
     NSString *urlFormatString = nil;
     if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10, 3, 0}]) {
         urlFormatString = @"itms-apps://itunes.apple.com/app/id%@?action=write-review";
