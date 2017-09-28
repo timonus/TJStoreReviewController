@@ -19,7 +19,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 {
     NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
     if (!date) {
-        [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerInitialDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
+        [self deferNextRateDayByDaysFromPresent:kTJStoreReviewControllerInitialDaysToRate];
     }
 }
 
@@ -28,10 +28,10 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     BOOL didTryShow = NO;
     NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
     if (!date) {
-        [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerInitialDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
+        [self deferNextRateDayByDaysFromPresent:kTJStoreReviewControllerInitialDaysToRate];
     } else {
         if ([date earlierDate:[NSDate date]] == date) {
-            [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerSubsequentDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
+            [self deferNextRateDayByDaysFromPresent:kTJStoreReviewControllerSubsequentDaysToRate];
             if ([SKStoreReviewController class]) {
                 [SKStoreReviewController requestReview];
                 didTryShow = YES;
@@ -43,7 +43,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
 {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * kTJStoreReviewControllerSubsequentDaysToRate] forKey:kTJStoreReviewControllerNextReviewDateKey];
+    [self deferNextRateDayByDaysFromPresent:kTJStoreReviewControllerSubsequentDaysToRate];
     NSString *urlFormatString = nil;
     if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10, 3, 0}]) {
         urlFormatString = @"itms-apps://itunes.apple.com/app/id%@?action=write-review";
