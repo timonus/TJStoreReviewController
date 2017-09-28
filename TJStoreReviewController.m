@@ -57,7 +57,13 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 
 + (void)deferNextRateDayByDaysFromPresent:(const NSUInteger)daysFromPresent
 {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * daysFromPresent] forKey:kTJStoreReviewControllerNextReviewDateKey];
+    NSDate *deferDate = [NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * daysFromPresent];
+    // Floor the input date to the very beginning of the specified day.
+    NSCalendar *const calendar = [NSCalendar currentCalendar];
+    NSDateComponents *const deferDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitTimeZone fromDate:deferDate];
+    deferDate = [calendar dateFromComponents:deferDateComponents];
+    
+    [[NSUserDefaults standardUserDefaults] setObject:deferDateComponents forKey:kTJStoreReviewControllerNextReviewDateKey];
 }
 
 @end
