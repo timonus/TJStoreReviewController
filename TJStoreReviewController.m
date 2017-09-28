@@ -55,4 +55,9 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
 }
 
++ (void)deferNextRateDayByDaysFromPresent:(const NSUInteger)daysFromPresent
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * daysFromPresent] forKey:kTJStoreReviewControllerNextReviewDateKey];
+}
+
 @end
