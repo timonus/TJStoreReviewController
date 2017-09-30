@@ -63,7 +63,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     NSDateComponents *const deferDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitTimeZone fromDate:deferDate];
     deferDate = [calendar dateFromComponents:deferDateComponents];
     
-    [[NSUserDefaults standardUserDefaults] setObject:deferDateComponents forKey:kTJStoreReviewControllerNextReviewDateKey];
+    [[NSUserDefaults standardUserDefaults] setObject:deferDate forKey:kTJStoreReviewControllerNextReviewDateKey];
 }
 
 @end
