@@ -45,7 +45,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 {
     [self deferNextRateDayByDaysFromPresent:kTJStoreReviewControllerSubsequentDaysToRate];
     NSString *urlFormatString = nil;
-    if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10, 3, 0}]) {
+    if (@available(iOS 10.3, *)) {
         urlFormatString = @"itms-apps://itunes.apple.com/app/id%@?action=write-review";
     } else {
         urlFormatString = @"itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@";
