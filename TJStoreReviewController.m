@@ -32,7 +32,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     } else {
         if ([date earlierDate:[NSDate date]] == date) {
             [self deferNextRateDayByDaysFromPresent:kTJStoreReviewControllerSubsequentDaysToRate];
-            if ([SKStoreReviewController class]) {
+            if (@available(iOS 10.3, *)) {
                 [SKStoreReviewController requestReview];
                 didTryShow = YES;
             }
