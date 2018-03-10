@@ -52,13 +52,13 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     }
     NSString *urlString = [NSString stringWithFormat:urlFormatString, appIdentifierString];
     
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
+    [self openURLString:urlString];
 }
 
 + (void)showInAppStore:(NSString *const)appIdentifierString
 {
     NSString *urlString = [NSString stringWithFormat:@"itms-apps://itunes.apple.com/app/id%@", appIdentifierString];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
+    [self openURLString:urlString];
 }
 
 + (void)deferNextRateDayByDaysFromPresent:(const NSUInteger)daysFromPresent
@@ -70,6 +70,16 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     deferDate = [calendar dateFromComponents:deferDateComponents];
     
     [[NSUserDefaults standardUserDefaults] setObject:deferDate forKey:kTJStoreReviewControllerNextReviewDateKey];
+}
+
++ (void)openURLString:(NSString *const)urlString NS_EXTENSION_UNAVAILABLE_IOS("+reviewInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:")
+{
+    NSURL *const url = [NSURL URLWithString:urlString];
+    if (@available(iOS 10.0, *)) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    } else {
+        [[UIApplication sharedApplication] openURL:url];
+    }
 }
 
 @end
