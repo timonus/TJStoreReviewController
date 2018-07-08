@@ -78,7 +78,10 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     if (@available(iOS 10.0, *)) {
         [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
     } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [[UIApplication sharedApplication] openURL:url];
+#pragma clang diagnostic pop
     }
 }
 
