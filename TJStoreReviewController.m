@@ -75,14 +75,15 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 + (void)openURLString:(NSString *const)urlString NS_EXTENSION_UNAVAILABLE_IOS("+reviewInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:")
 {
     NSURL *const url = [NSURL URLWithString:urlString];
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
     if (@available(iOS 10.0, *)) {
+#endif
         [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
     } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [[UIApplication sharedApplication] openURL:url];
-#pragma clang diagnostic pop
     }
+#endif
 }
 
 @end
