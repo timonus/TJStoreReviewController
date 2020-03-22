@@ -46,9 +46,9 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
     NSString *urlFormatString = nil;
     if (@available(iOS 10.3, *)) {
-        urlFormatString = @"itms-apps://itunes.apple.com/app/id%@?action=write-review";
+        urlFormatString = @"https://itunes.apple.com/app/id%@?action=write-review";
     } else {
-        urlFormatString = @"itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@";
+        urlFormatString = @"https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@";
     }
     NSString *urlString = [NSString stringWithFormat:urlFormatString, appIdentifierString];
     
