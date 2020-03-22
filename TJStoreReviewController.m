@@ -55,10 +55,14 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     openURLString(urlString);
 }
 
++ (NSString *)appStoreURLStringForAppIdentifierString:(NSString *const)appIdentifierString
+{
+    return [NSString stringWithFormat:@"https://apps.apple.com/app/id%@", appIdentifierString];
+}
+
 + (void)showInAppStore:(NSString *const)appIdentifierString
 {
-    NSString *urlString = [NSString stringWithFormat:@"itms-apps://itunes.apple.com/app/id%@", appIdentifierString];
-    openURLString(urlString);
+    openURLString([self appStoreURLStringForAppIdentifierString:appIdentifierString]);
 }
 
 static void deferNextRateDayByDaysFromPresent(const NSUInteger daysFromPresent)

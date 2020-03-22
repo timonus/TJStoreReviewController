@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Calling this defers the next time that +requestThrottledReview will show a review prompt.
 + (void)reviewInAppStore:(NSString *const)appIdentifierString NS_EXTENSION_UNAVAILABLE_IOS("+reviewInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:");
 
++ (NSString *)appStoreURLStringForAppIdentifierString:(NSString *const)appIdentifierString;
+
 /// Call this passing in your app's iTunes identifier to show your app in the App Store.
 + (void)showInAppStore:(NSString *const)appIdentifierString NS_EXTENSION_UNAVAILABLE_IOS("+showInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:");
 
