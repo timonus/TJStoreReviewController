@@ -52,7 +52,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
     }
     NSString *urlString = [NSString stringWithFormat:urlFormatString, appIdentifierString];
     
-    openURLString(urlString);
+    openWebURLStringWithFallback(urlString);
 }
 
 + (NSString *)appStoreURLStringForAppIdentifierString:(NSString *const)appIdentifierString
@@ -62,7 +62,7 @@ static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
 
 + (void)showInAppStore:(NSString *const)appIdentifierString
 {
-    openURLString([self appStoreURLStringForAppIdentifierString:appIdentifierString]);
+    openWebURLStringWithFallback([self appStoreURLStringForAppIdentifierString:appIdentifierString]);
 }
 
 static void deferNextRateDayByDaysFromPresent(const NSUInteger daysFromPresent)
@@ -76,13 +76,23 @@ static void deferNextRateDayByDaysFromPresent(const NSUInteger daysFromPresent)
     [[NSUserDefaults standardUserDefaults] setObject:deferDate forKey:kTJStoreReviewControllerNextReviewDateKey];
 }
 
-static void openURLString(NSString *const urlString) NS_EXTENSION_UNAVAILABLE_IOS("+reviewInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:")
+static void openWebURLStringWithFallback(NSString *const urlString) NS_EXTENSION_UNAVAILABLE_IOS("+reviewInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:")
 {
     NSURL *const url = [NSURL URLWithString:urlString];
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
     if (@available(iOS 10.0, *)) {
 #endif
-        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        [[UIApplication sharedApplication] openURL:url
+                                           options:@{UIApplicationOpenURLOptionUniversalLinksOnly: @YES}
+                                 completionHandler:^(BOOL success) {
+            if (!success) {
+                NSURLComponents *const components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+                components.scheme = @"itms-apps";
+                [[UIApplication sharedApplication] openURL:components.URL
+                                                   options:@{}
+                                         completionHandler:nil];
+            }
+        }];
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
     } else {
         [[UIApplication sharedApplication] openURL:url];
