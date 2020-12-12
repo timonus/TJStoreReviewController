@@ -11,7 +11,7 @@
 static NSString *const kTJStoreReviewControllerNextReviewDateKey = @"kTJStoreReviewControllerNextReviewDateKey";
 
 static const NSUInteger kTJStoreReviewControllerInitialDaysToRate = 7;
-static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 30;
+static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 120;
 
 #if defined(__has_attribute) && __has_attribute(objc_direct_members)
 __attribute__((objc_direct_members))
