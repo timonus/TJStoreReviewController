@@ -34,8 +34,18 @@ __attribute__((objc_direct_members))
         deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
     } else {
         if ([date earlierDate:[NSDate date]] == date) {
-            deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
             if (@available(iOS 10.3, *)) {
+                static dispatch_once_t onceToken;
+                dispatch_once(&onceToken, ^{
+                    [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
+                                                                      object:nil
+                                                                       queue:nil
+                                                                  usingBlock:^(NSNotification * _Nonnull notification) {
+                        if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
+                            deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
+                        }
+                    }];
+                });
                 [SKStoreReviewController requestReview];
                 didTryShow = YES;
             }
