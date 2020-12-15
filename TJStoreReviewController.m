@@ -47,6 +47,7 @@ __attribute__((objc_direct_members))
                     }];
                 });
                 [SKStoreReviewController requestReview];
+                deferNextRateDayByDaysFromPresent(1);
                 didTryShow = YES;
             }
         }
