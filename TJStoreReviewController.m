@@ -34,7 +34,9 @@ __attribute__((objc_direct_members))
         deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
     } else {
         if ([date earlierDate:[NSDate date]] == date) {
+#if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
             if (@available(iOS 10.3, *)) {
+#endif
                 static dispatch_once_t onceToken;
                 dispatch_once(&onceToken, ^{
                     [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
@@ -49,7 +51,9 @@ __attribute__((objc_direct_members))
                 [SKStoreReviewController requestReview];
                 deferNextRateDayByDaysFromPresent(1);
                 didTryShow = YES;
+#if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
             }
+#endif
         }
     }
     return didTryShow;
@@ -59,11 +63,15 @@ __attribute__((objc_direct_members))
 {
     deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
     NSString *urlFormatString = nil;
+#if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
     if (@available(iOS 10.3, *)) {
+#endif
         urlFormatString = @"https://itunes.apple.com/app/id%@?action=write-review";
+#if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
     } else {
         urlFormatString = @"https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@";
     }
+#endif
     NSString *urlString = [NSString stringWithFormat:urlFormatString, appIdentifierString];
     
     openWebURLStringWithFallback(urlString);
