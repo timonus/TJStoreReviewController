@@ -48,8 +48,8 @@ __attribute__((objc_direct_members))
                         }
                     }];
                 });
-                [SKStoreReviewController requestReview];
                 deferNextRateDayByDaysFromPresent(1);
+                [SKStoreReviewController requestReview];
                 didTryShow = YES;
 #if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
             }
