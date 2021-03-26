@@ -28,6 +28,9 @@ __attribute__((objc_direct_members))
 
 + (BOOL)requestThrottledReview
 {
+    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
+        return NO;
+    }
     BOOL didTryShow = NO;
     NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
     if (!date) {
