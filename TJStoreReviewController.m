@@ -7,11 +7,37 @@
 
 #import "TJStoreReviewController.h"
 #import <StoreKit/StoreKit.h>
+#import <objc/runtime.h>
 
 static NSString *const kTJStoreReviewControllerNextReviewDateKey = @"kTJStoreReviewControllerNextReviewDateKey";
 
 static const NSUInteger kTJStoreReviewControllerInitialDaysToRate = 7;
 static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 120;
+
+@interface TJWindowDeallocObserver : NSObject
+
+- (instancetype)initWithDeallocBlock:(dispatch_block_t)deallocBlock;
+
+@end
+
+@implementation TJWindowDeallocObserver {
+    dispatch_block_t _deallocBlock;
+}
+
+- (instancetype)initWithDeallocBlock:(dispatch_block_t)deallocBlock
+{
+    if (self = [super init]) {
+        _deallocBlock = deallocBlock;
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    _deallocBlock();
+}
+
+@end
 
 #if defined(__has_attribute) && __has_attribute(objc_direct_members)
 __attribute__((objc_direct_members))
@@ -27,6 +53,13 @@ __attribute__((objc_direct_members))
 }
 
 + (BOOL)requestThrottledReview
+{
+    return [self requestThrottledReviewWithDidShowBlock:nil
+                                        didDismissBlock:nil];
+}
+
++ (BOOL)requestThrottledReviewWithDidShowBlock:(dispatch_block_t)didShowBlock
+                               didDismissBlock:(dispatch_block_t)didDismissBlock;
 {
     if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
         return NO;
@@ -46,8 +79,18 @@ __attribute__((objc_direct_members))
                                                                       object:nil
                                                                        queue:nil
                                                                   usingBlock:^(NSNotification * _Nonnull notification) {
-                        if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
+                        const id notificationObject = notification.object;
+                        if ([NSStringFromClass([notificationObject class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
                             deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
+                            if (didShowBlock) {
+                                didShowBlock();
+                            }
+                            if (didDismissBlock) {
+                                objc_setAssociatedObject(notificationObject,
+                                                         [NSStringFromClass([TJWindowDeallocObserver class]) cStringUsingEncoding:NSUTF8StringEncoding],
+                                                         [[TJWindowDeallocObserver alloc] initWithDeallocBlock:didDismissBlock],
+                                                         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                            }
                         }
                     }];
                 });

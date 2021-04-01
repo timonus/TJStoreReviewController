@@ -20,6 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// This isn't guaranteed to show a prompt, but it may.
 /// Doesn't do anything in iOS versions prior to 10.3.
 + (BOOL)requestThrottledReview NS_EXTENSION_UNAVAILABLE_IOS("+requestThrottledReview: isn't available in app extensions because it requires a UIApplication instance");
+// App-only
+// Window Scene
+// Bypass throttling
+// Did Show Block
+// Did Dismiss Block
+// Improve docs
+
++ (BOOL)requestThrottledReviewWithDidShowBlock:(nullable dispatch_block_t)didShowBlock
+                               didDismissBlock:(nullable dispatch_block_t)didDismissBlock NS_EXTENSION_UNAVAILABLE_IOS("+requestThrottledReview: isn't available in app extensions because it requires a UIApplication instance");
 
 /// Call this passing in your app's iTunes identifier to show the rating UI in the App Store.
 /// Calling this defers the next time that +requestThrottledReview will show a review prompt.
