@@ -38,8 +38,9 @@ __attribute__((objc_direct_members))
     } else {
         if ([date earlierDate:[NSDate date]] == date) {
 #if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
-            if (@available(iOS 10.3, *)) {
+            if (@available(iOS 10.3, *))
 #endif
+            {
                 static dispatch_once_t onceToken;
                 dispatch_once(&onceToken, ^{
                     [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
@@ -54,9 +55,7 @@ __attribute__((objc_direct_members))
                 deferNextRateDayByDaysFromPresent(1);
                 [SKStoreReviewController requestReview];
                 didTryShow = YES;
-#if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
             }
-#endif
         }
     }
     return didTryShow;
