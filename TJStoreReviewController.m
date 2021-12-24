@@ -26,39 +26,42 @@ __attribute__((objc_direct_members))
     }
 }
 
-+ (BOOL)requestThrottledReview
++ (BOOL)requestThrottledReview:(dispatch_block_t)didPromptBlock
 {
-    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
-        return NO;
-    }
-    BOOL didTryShow = NO;
-    NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
-    if (!date) {
-        deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
-    } else {
-        if ([date earlierDate:[NSDate date]] == date) {
-#if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
-            if (@available(iOS 10.3, *))
-#endif
-            {
-                static dispatch_once_t onceToken;
-                dispatch_once(&onceToken, ^{
-                    [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
-                                                                      object:nil
-                                                                       queue:nil
-                                                                  usingBlock:^(NSNotification * _Nonnull notification) {
-                        if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
-                            deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
-                        }
-                    }];
-                });
-                deferNextRateDayByDaysFromPresent(1);
-                [SKStoreReviewController requestReview];
-                didTryShow = YES;
-            }
+    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+        NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
+        if (!date) {
+            deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
+        } else if ([date earlierDate:[NSDate date]] == date) {
+            [self requestImmediateReview:didPromptBlock];
+            return YES;
         }
     }
-    return didTryShow;
+    return NO;
+}
+
++ (void)requestImmediateReview:(dispatch_block_t)didPromptBlock
+{
+    static dispatch_block_t currentPromptBlock;
+    currentPromptBlock = didPromptBlock;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification * _Nonnull notification) {
+            if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
+                deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
+                if (currentPromptBlock) {
+                    currentPromptBlock();
+                    currentPromptBlock = nil;
+                }
+            }
+        }];
+    });
+    deferNextRateDayByDaysFromPresent(1);
+    [SKStoreReviewController requestReview];
 }
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
