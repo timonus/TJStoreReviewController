@@ -34,6 +34,7 @@ __attribute__((objc_direct_members))
             deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
         } else if ([date earlierDate:[NSDate date]] == date) {
             [self requestImmediateReview:didPromptBlock];
+            deferNextRateDayByDaysFromPresent(1);
             return YES;
         }
     }
@@ -60,7 +61,6 @@ __attribute__((objc_direct_members))
             }
         }];
     });
-    deferNextRateDayByDaysFromPresent(1);
     [SKStoreReviewController requestReview];
 }
 
