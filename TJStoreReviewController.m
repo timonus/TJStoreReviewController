@@ -34,13 +34,20 @@ __attribute__((objc_direct_members))
             deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
         } else if ([date earlierDate:[NSDate date]] == date) {
             [self requestImmediateReview:didPromptBlock];
-            if ([[NSProcessInfo processInfo] isMacCatalystApp] || [[NSProcessInfo processInfo] isiOSAppOnMac]) {
-                // The trick we use for detecting if the prompt has shown doesn't work on macOS.
-                // To avoid repeatedly prompting the user we assume success and defer by kTJStoreReviewControllerSubsequentDaysToRate.
-                deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
-            } else {
-                deferNextRateDayByDaysFromPresent(1);
+            
+            // The trick we use for detecting if the prompt has shown doesn't work on macOS.
+            // To avoid repeatedly prompting the user we assume success and defer by kTJStoreReviewControllerSubsequentDaysToRate.
+            NSUInteger daysToDefer = 1;
+            if (@available(iOS 13.0, *)) {
+                if ([[NSProcessInfo processInfo] isMacCatalystApp]) {
+                    daysToDefer = kTJStoreReviewControllerSubsequentDaysToRate;
+                } else if (@available(iOS 14.0, *)) {
+                    if ([[NSProcessInfo processInfo] isiOSAppOnMac]) {
+                        daysToDefer = kTJStoreReviewControllerSubsequentDaysToRate;
+                    }
+                }
             }
+            deferNextRateDayByDaysFromPresent(daysToDefer);
             return YES;
         }
     }
