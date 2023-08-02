@@ -74,7 +74,10 @@ __attribute__((objc_direct_members))
             }
         }];
     });
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [SKStoreReviewController requestReview];
+#pragma clang diagnostic pop
 }
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
