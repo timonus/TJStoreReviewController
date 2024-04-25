@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "TJStoreReviewController",
-    platforms: [.iOS(.v10), .macCatalyst(.v13)],
+    platforms: [.iOS(.v12), .macCatalyst(.v13)],
     products: [
         .library(
             name: "TJStoreReviewController",
