@@ -10,19 +10,39 @@
 
 static NSString *const kTJStoreReviewControllerNextReviewDateKey = @"kTJStoreReviewControllerNextReviewDateKey";
 
-static const NSUInteger kTJStoreReviewControllerInitialDaysToRate = 7;
-static const NSUInteger kTJStoreReviewControllerSubsequentDaysToRate = 120;
-
 #if defined(__has_attribute) && __has_attribute(objc_direct_members)
 __attribute__((objc_direct_members))
 #endif
 @implementation TJStoreReviewController
 
+static NSUInteger _initialDaysToRate = 7;
+static NSUInteger _subsequentDaysToRate = 120;
+
++ (void)setInitialDaysToRate:(NSUInteger)initialDaysToRate
+{
+    _initialDaysToRate = initialDaysToRate;
+}
+
++ (NSUInteger)initialDaysToRate
+{
+    return _initialDaysToRate;
+}
+
++ (void)setSubsequentDaysToRate:(NSUInteger)subsequentDaysToRate
+{
+    _subsequentDaysToRate = subsequentDaysToRate;
+}
+
++ (NSUInteger)subsequentDaysToRate
+{
+    return _subsequentDaysToRate;
+}
+
 + (void)appDidLaunch
 {
     NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
     if (!date) {
-        deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
+        deferNextRateDayByDaysFromPresent(self.initialDaysToRate);
     }
 }
 
@@ -31,7 +51,7 @@ __attribute__((objc_direct_members))
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
         NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
         if (!date) {
-            deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerInitialDaysToRate);
+            deferNextRateDayByDaysFromPresent(self.initialDaysToRate);
         } else if ([date earlierDate:[NSDate date]] == date) {
             [self requestImmediateReview:didPromptBlock];
             
@@ -40,10 +60,10 @@ __attribute__((objc_direct_members))
             NSUInteger daysToDefer = 1;
             if (@available(iOS 13.0, *)) {
                 if ([[NSProcessInfo processInfo] isMacCatalystApp]) {
-                    daysToDefer = kTJStoreReviewControllerSubsequentDaysToRate;
+                    daysToDefer = self.subsequentDaysToRate;
                 } else if (@available(iOS 14.0, *)) {
                     if ([[NSProcessInfo processInfo] isiOSAppOnMac]) {
-                        daysToDefer = kTJStoreReviewControllerSubsequentDaysToRate;
+                        daysToDefer = self.subsequentDaysToRate;
                     }
                 }
             }
@@ -74,7 +94,7 @@ __attribute__((objc_direct_members))
                                                                queue:nil
                                                           usingBlock:^(NSNotification * _Nonnull notification) {
                 if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
-                    deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
+                    deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
                     if (currentPromptBlock) {
                         currentPromptBlock();
                         currentPromptBlock = nil;
@@ -94,7 +114,7 @@ __attribute__((objc_direct_members))
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
 {
-    deferNextRateDayByDaysFromPresent(kTJStoreReviewControllerSubsequentDaysToRate);
+    deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
     NSString *urlFormatString = nil;
 #if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
     if (@available(iOS 10.3, *)) {
@@ -120,14 +140,22 @@ __attribute__((objc_direct_members))
     openWebURLStringWithFallback([self appStoreURLStringForAppIdentifierString:appIdentifierString]);
 }
 
-static void deferNextRateDayByDaysFromPresent(const NSUInteger daysFromPresent)
++ (void)setNextShowDate:(NSDate *)date
 {
-    NSDate *deferDate = [NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * daysFromPresent];
+    [[NSUserDefaults standardUserDefaults] setObject:_floorDate(date) forKey:kTJStoreReviewControllerNextReviewDateKey];
+}
+
+static NSDate *_floorDate(NSDate *const date)
+{
     // Floor the input date to the very beginning of the specified day.
     NSCalendar *const calendar = [NSCalendar currentCalendar];
-    NSDateComponents *const deferDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitTimeZone fromDate:deferDate];
-    deferDate = [calendar dateFromComponents:deferDateComponents];
-    
+    NSDateComponents *const deferDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitTimeZone fromDate:date];
+    return [calendar dateFromComponents:deferDateComponents];
+}
+
+static void deferNextRateDayByDaysFromPresent(const NSUInteger daysFromPresent)
+{
+    NSDate *const deferDate = _floorDate([NSDate dateWithTimeIntervalSinceNow:3600.0 * 24.0 * daysFromPresent]);
     [[NSUserDefaults standardUserDefaults] setObject:deferDate forKey:kTJStoreReviewControllerNextReviewDateKey];
 }
 

@@ -34,6 +34,20 @@ NS_ASSUME_NONNULL_BEGIN
 /// Call this passing in your app's iTunes identifier to show your app in the App Store.
 + (void)showInAppStore:(NSString *const)appIdentifierString NS_EXTENSION_UNAVAILABLE_IOS("+showInAppStore: isn't available in app extensions because it requires a UIApplication instance and -openURL:");
 
+#pragma mark - Advanced Customization
+
+/// Days between first call to `appDidLaunch` or `requestThrottledReview:` and the time we actually attempt to review.
+/// Defaults to 7
+@property (nonatomic, class) NSUInteger initialDaysToRate;
+
+/// Minimum days between successful rate prompts.
+/// Defaults to 120
+@property (nonatomic, class) NSUInteger subsequentDaysToRate;
+
+/// Allows you to override the next eligible prompting date for throttled review.
+/// Useful when migrating from other app rating prompt systems.
++ (void)setNextShowDate:(NSDate *)date;
+
 @end
 
 NS_ASSUME_NONNULL_END
