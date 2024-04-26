@@ -76,7 +76,6 @@ static NSUInteger _subsequentDaysToRate = 120;
 
 + (void)requestImmediateReview:(dispatch_block_t)didPromptBlock
 {
-    static dispatch_block_t currentPromptBlock;
     static BOOL isEligible;
     
     static dispatch_once_t onceToken;
@@ -88,23 +87,20 @@ static NSUInteger _subsequentDaysToRate = 120;
         NSURL *const receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
         isEligible = ![receiptURL.lastPathComponent isEqualToString:@"sandboxReceipt"];
 #endif
-        if (isEligible) {
-            [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
-                                                              object:nil
-                                                               queue:nil
-                                                          usingBlock:^(NSNotification * _Nonnull notification) {
-                if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
-                    deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
-                    if (currentPromptBlock) {
-                        currentPromptBlock();
-                        currentPromptBlock = nil;
-                    }
-                }
-            }];
-        }
     });
     if (isEligible) {
-        currentPromptBlock = didPromptBlock;
+        __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
+                                                                                object:nil
+                                                                                 queue:nil
+                                                                            usingBlock:^(NSNotification * _Nonnull notification) {
+            if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
+                deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
+                if (didPromptBlock) {
+                    didPromptBlock();
+                }
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+            }
+        }];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [SKStoreReviewController requestReview];
