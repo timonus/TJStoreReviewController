@@ -76,36 +76,22 @@ static NSUInteger _subsequentDaysToRate = 120;
 
 + (void)requestImmediateReview:(dispatch_block_t)didPromptBlock
 {
-    static BOOL isEligible;
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#if DEBUG
-        isEligible = NO;
-#else
-        // https://mobile.twitter.com/kraustifer/status/1090773523860058112/
-        NSURL *const receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-        isEligible = ![receiptURL.lastPathComponent isEqualToString:@"sandboxReceipt"];
-#endif
-    });
-    if (isEligible) {
-        __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
-                                                                                object:nil
-                                                                                 queue:nil
-                                                                            usingBlock:^(NSNotification * _Nonnull notification) {
-            if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
-                deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
-                if (didPromptBlock) {
-                    didPromptBlock();
-                }
-                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+    __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
+                                                                            object:nil
+                                                                             queue:nil
+                                                                        usingBlock:^(NSNotification * _Nonnull notification) {
+        if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
+            deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
+            if (didPromptBlock) {
+                didPromptBlock();
             }
-        }];
+            [[NSNotificationCenter defaultCenter] removeObserver:observer];
+        }
+    }];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [SKStoreReviewController requestReview];
+    [SKStoreReviewController requestReview];
 #pragma clang diagnostic pop
-    }
 }
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
