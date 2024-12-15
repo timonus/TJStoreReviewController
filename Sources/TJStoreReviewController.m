@@ -48,7 +48,7 @@ static NSUInteger _subsequentDaysToRate = 120;
 
 + (BOOL)requestThrottledReview:(dispatch_block_t)didPromptBlock
 {
-    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive && ![[NSProcessInfo processInfo] isLowPowerModeEnabled]) {
         NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
         if (!date) {
             deferNextRateDayByDaysFromPresent(self.initialDaysToRate);
