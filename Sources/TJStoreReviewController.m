@@ -97,17 +97,16 @@ static NSUInteger _subsequentDaysToRate = 120;
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
 {
     deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
-    NSString *urlFormatString = nil;
+    NSString *urlString;
 #if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
     if (@available(iOS 10.3, *)) {
 #endif
-        urlFormatString = @"https://itunes.apple.com/app/id%@?action=write-review";
+        urlString = [NSString stringWithFormat:@"https://itunes.apple.com/app/id%@?action=write-review", appIdentifierString];
 #if !defined(__IPHONE_10_3) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_3
     } else {
-        urlFormatString = @"https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@";
+        urlString = [NSString stringWithFormat:@"https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@", appIdentifierString];
     }
 #endif
-    NSString *urlString = [NSString stringWithFormat:urlFormatString, appIdentifierString];
     
     openWebURLStringWithFallback(urlString);
 }
