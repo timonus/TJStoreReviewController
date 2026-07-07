@@ -22,8 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)requestThrottledReview:(nullable dispatch_block_t)didPromptBlock NS_EXTENSION_UNAVAILABLE_IOS("+requestThrottledReview: isn't available in app extensions because it requires a UIApplication instance") API_AVAILABLE(ios(10.3));
 
 /// Call this to attempt to show an in-app rating prompt immediately.
+/// This isn't guaranteed to attempt to show a prompt. Check the return value for whether prompting was attempted.
 /// If a prompt is shown then @c didPromptBlock will be invoked.
-+ (void)requestImmediateReview:(nullable dispatch_block_t)didPromptBlock NS_EXTENSION_UNAVAILABLE_IOS("+requestImmediateReview: isn't available in app extensions because it requires a UIApplication instance") API_AVAILABLE(ios(10.3));
++ (BOOL)requestImmediateReview:(nullable dispatch_block_t)didPromptBlock NS_EXTENSION_UNAVAILABLE_IOS("+requestImmediateReview: isn't available in app extensions because it requires a UIApplication instance") API_AVAILABLE(ios(10.3));
 
 /// Call this passing in your app's iTunes identifier to show the rating UI in the App Store.
 /// Calling this defers the next time that @c +requestThrottledReview: will show a review prompt.

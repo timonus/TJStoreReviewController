@@ -55,9 +55,7 @@ static NSUInteger _subsequentDaysToRate = 120;
         NSDate *const date = [[NSUserDefaults standardUserDefaults] objectForKey:kTJStoreReviewControllerNextReviewDateKey];
         if (!date) {
             deferNextRateDayByDaysFromPresent(self.initialDaysToRate);
-        } else if ([date earlierDate:[NSDate date]] == date) {
-            [self requestImmediateReview:didPromptBlock];
-            
+        } else if ([date earlierDate:[NSDate date]] == date && [self requestImmediateReview:didPromptBlock]) {
             // The trick we use for detecting if the prompt has shown doesn't work on macOS.
             // To avoid repeatedly prompting the user we assume success and defer by kTJStoreReviewControllerSubsequentDaysToRate.
             NSUInteger daysToDefer = 1;
@@ -77,26 +75,30 @@ static NSUInteger _subsequentDaysToRate = 120;
     return NO;
 }
 
-+ (void)requestImmediateReview:(dispatch_block_t)didPromptBlock
++ (BOOL)requestImmediateReview:(dispatch_block_t)didPromptBlock
 {
-    if (!_isPrereleaseOSVersion()) {
-        __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
-                                                                                object:nil
-                                                                                 queue:nil
-                                                                            usingBlock:^(NSNotification * _Nonnull notification) {
-            if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
-                deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
-                if (didPromptBlock) {
-                    didPromptBlock();
-                }
-                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+    if (_isPrereleaseOSVersion()) {
+        return NO;
+    }
+    
+    __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
+                                                                            object:nil
+                                                                             queue:nil
+                                                                        usingBlock:^(NSNotification * _Nonnull notification) {
+        if ([NSStringFromClass([notification.object class]) hasPrefix:[NSStringFromClass([SKStoreReviewController class]) substringToIndex:13]]) {
+            deferNextRateDayByDaysFromPresent(self.subsequentDaysToRate);
+            if (didPromptBlock) {
+                didPromptBlock();
             }
-        }];
+            [[NSNotificationCenter defaultCenter] removeObserver:observer];
+        }
+    }];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [SKStoreReviewController requestReview];
+    [SKStoreReviewController requestReview];
 #pragma clang diagnostic pop
-    }
+    
+    return YES;
 }
 
 + (void)reviewInAppStore:(NSString *const)appIdentifierString
