@@ -7,8 +7,11 @@
 
 #import "TJStoreReviewController.h"
 #import <StoreKit/StoreKit.h>
+#import <sys/sysctl.h>
 
 static NSString *const kTJStoreReviewControllerNextReviewDateKey = @"kTJStoreReviewControllerNextReviewDateKey";
+
+static BOOL _isPrereleaseOSVersion(void);
 
 #if defined(__has_attribute) && __has_attribute(objc_direct_members)
 __attribute__((objc_direct_members))
@@ -168,3 +171,30 @@ static void openWebURLStringWithFallback(NSString *const urlString) NS_EXTENSION
 }
 
 @end
+
+
+// Prerelease OS build numbers typically end in a lowercase character. Stable releases do not.
+static BOOL _isPrereleaseOSVersion(void) {
+    static BOOL isPrereleaseOSVersion;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        unichar last = '\0';
+#if TARGET_OS_SIMULATOR
+        // In the simulator sysctlbyname returns the details of the Mac running the sim. Use runtime env vars instead.
+        NSString *const osBuildNumber = [[[NSProcessInfo processInfo] environment] objectForKey:@"SIMULATOR_RUNTIME_BUILD_VERSION"];
+        if (osBuildNumber.length > 1) {
+            last = [osBuildNumber characterAtIndex:osBuildNumber.length - 1];
+        }
+#else
+        size_t size = 64;
+        char buf[size];
+        if (sysctlbyname("kern.osversion", buf, &size, NULL, 0) == 0) {
+            if (size > 1) {
+                last = buf[size - 2];
+            }
+        }
+#endif
+        isPrereleaseOSVersion = [[NSCharacterSet lowercaseLetterCharacterSet] characterIsMember:last];
+    });
+    return isPrereleaseOSVersion;
+}
